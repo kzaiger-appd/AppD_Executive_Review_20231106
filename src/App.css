@@ -1,0 +1,23 @@
+.mysidenav{
+  background-color: #0D274D !important;
+  font-family: "Segoe UI", Tahoma, Verdana, Geneva, Tahoma, sans-serif;
+  margin-top: 60px;
+}
+
+.page{
+  font-size: 5rem;
+  text-align: center;
+}
+
+.header{
+  background-color: #0D274D !important;
+  height:60px;
+}
+
+.headertext{
+  text-align: center;
+}
+
+.login_sidenav{
+  margin-bottom: 300px;
+}
