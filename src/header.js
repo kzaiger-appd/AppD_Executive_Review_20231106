@@ -4,8 +4,8 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
-import Logo from "/Users/benjin8or/Cisco Project/cisco-project/src/Logo.svg";
-import profile from "/Users/benjin8or/Cisco Project/cisco-project/src/profile.png";
+import Logo from "./Logo.svg";
+import profile from "./profile.png";
 
 
 function Header() {
