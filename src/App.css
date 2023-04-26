@@ -2,7 +2,16 @@
   background-color: #0D274D !important;
   font-family: "Segoe UI", Tahoma, Verdana, Geneva, Tahoma, sans-serif;
   margin-top: 60px;
+
 }
+
+.mysidenav2{
+  /* background-color: #0D274D !important; */
+  font-family: "Segoe UI", Tahoma, Verdana, Geneva, Tahoma, sans-serif;
+  /* margin-top: 60px; */
+
+}
+
 
 .page{
   font-size: 5rem;

@@ -36,11 +36,11 @@ function MySideNav(){
                     <NavIcon><i className="fa fa-fw fa-desktop" style={{fontSize:"1.5em"}}></i></NavIcon>
                     <NavText>FSO</NavText>
                 </NavItem>
-                <NavItem eventKey="contact_us">
+                <NavItem eventKey="contact_us" style={{position: "relative", bottom: "-340px"}}>
                     <NavIcon><i className="fa fa-fw fa-phone" style={{fontSize:"1.5em"}}></i></NavIcon>
-                    <NavText>Contact us</NavText>
+                    <NavText>Contact us </NavText>
                 </NavItem >
-                <NavItem eventKey="login">
+                <NavItem eventKey="login" style={{position: "relative", bottom: "-340px"}}>
                     <NavIcon><i className="fa fa-fw fa-power-off" style={{fontSize:"1.5em"}} ></i></NavIcon>
                     <NavText>Logout</NavText>
                 </NavItem>
@@ -52,7 +52,5 @@ function MySideNav(){
 
 
     export default MySideNav;
-
-
 
 
