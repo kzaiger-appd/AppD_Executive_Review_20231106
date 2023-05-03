@@ -32,18 +32,22 @@ function MySideNav(){
                     <NavIcon><i className="fa fa-fw fa-upload" style={{fontSize:"1.5em"}}></i></NavIcon>
                     <NavText>On-Prem</NavText>
                 </NavItem>
-                <NavItem eventKey="fso">
+                <NavItem eventKey="fso" >
                     <NavIcon><i className="fa fa-fw fa-desktop" style={{fontSize:"1.5em"}}></i></NavIcon>
                     <NavText>FSO</NavText>
                 </NavItem>
-                <NavItem eventKey="contact_us" style={{bottom: "-340px"}}>
+                <NavItem eventKey="contact_us" style={{position: "relative"}} >
                     <NavIcon><i className="fa fa-fw fa-phone" style={{fontSize:"1.5em"}}></i></NavIcon>
                     <NavText>Contact us </NavText>
                 </NavItem >
-                <NavItem eventKey="login" style={{bottom: "-340px"}}>
+
+                {/*  keeping the  logout item for reference */}
+                
+                {/* <NavItem eventKey="login" style={{position: "relative"}}>
                     <NavIcon><i className="fa fa-fw fa-power-off" style={{fontSize:"1.5em"}} ></i></NavIcon>
                     <NavText>Logout</NavText>
-                </NavItem>
+                </NavItem> */}
+
             </SideNav.Nav>
             </SideNav>
             );
