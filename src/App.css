@@ -1,5 +1,7 @@
 .mysidenav{
-  background-color: #0D274D !important;
+  /* background-color: #024D90 !important; */
+  background-image: linear-gradient(to bottom, #00BCEB, #024D90)!important; 
+  /* background-image: linear-gradient(to bottom, #00BCEB, #024D90); */
   font-family: "Segoe UI", Tahoma, Verdana, Geneva, Tahoma, sans-serif;
   margin-top: 60px;
 
@@ -13,13 +15,21 @@
 }
 
 
+/* If I uncomment this, the house icon in the side_bar turns to black */
+/* Target the icon element directly */
+/* .fa-house {
+  color: black !important;
+} */
+
+
 .page{
   font-size: 5rem;
   text-align: center;
 }
 
 .header{
-  background-color: #0D274D !important;
+  /* background-color: #0D274D !important; */
+  background-image: linear-gradient(to right, #00BCEB, #024D90);
   height:60px;
 }
 

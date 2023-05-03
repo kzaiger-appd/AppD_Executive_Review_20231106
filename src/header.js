@@ -4,7 +4,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
-import Logo from "./Logo.svg";
+import Logo from "./cisco_logo.png";
 import profile from "./profile.png";
 
 // import Avatar from '@mui/material/Avatar';
@@ -43,7 +43,7 @@ return (
 	<AppBar position="static" className="header">
         
 		<Toolbar>
-        <img src={Logo} width="100" alt="logo"/>
+        <img src={Logo} width="120" alt="logo"/>
         
         <Typography className="headertext" variant="h6" 
             component="div" sx={{ flexGrow: 1 }}>

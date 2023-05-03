@@ -42,7 +42,7 @@ function MySideNav(){
                 </NavItem >
 
                 {/*  keeping the  logout item for reference */}
-                
+
                 {/* <NavItem eventKey="login" style={{position: "relative"}}>
                     <NavIcon><i className="fa fa-fw fa-power-off" style={{fontSize:"1.5em"}} ></i></NavIcon>
                     <NavText>Logout</NavText>
