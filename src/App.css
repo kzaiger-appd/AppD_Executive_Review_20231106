@@ -29,7 +29,7 @@
 
 .header{
   /* background-color: #0D274D !important; */
-  background-image: linear-gradient(to right, #00BCEB, #024D90);
+  background-image: linear-gradient(to right, #00BCEB 15%, #024D90);
   height:60px;
 }
 
