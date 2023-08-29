@@ -10,6 +10,7 @@ import OnPrem from "./pages/on-prem";
 import HeaderSidenav from "./header_sidenav";
 import Settings from "./pages/settings";
 import Profile from "./pages/profile";
+import SubmissionForm from "./pages/submission_form";
 
 
 function App() {
@@ -17,7 +18,6 @@ function App() {
   
     <Router>
       <HeaderSidenav/>
-
       <Routes>
         <Route path="/appd_cloud" element={<AppDCloud/>}/>
         <Route path="/contact_us" element={<ContactUs/>}/>
@@ -26,11 +26,11 @@ function App() {
         <Route path="/fso" element={<FSO/>}/>
         <Route path="/login" element={<Login/>}/>
         <Route path="/on_prem" element={<OnPrem/>}/>
+        <Route path="/submission_form" element={<SubmissionForm/>}/>
         <Route path="/settings" element={<Settings/>}/>
         <Route path="/profile" element={<Profile/>}/>
       </Routes>
     </Router>
-  
   );
 }
 

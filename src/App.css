@@ -40,3 +40,12 @@
 .login_sidenav{
   margin-bottom: 300px;
 }
+
+.mb-3{
+  text-align: center;
+}
+
+.submitButton{
+  display: flex;
+  justify-content: center;
+}

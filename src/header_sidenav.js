@@ -162,7 +162,11 @@ return (
                   </NavItem>
                   <NavItem eventKey="contact_us" style={{position: "relative"}} onClick ={() => setMyTitle("Contact Us")}>
                       <NavIcon><i className="fa fa-fw fa-phone" style={{fontSize:"1.5em"}}></i></NavIcon>
-                      <NavText>Contact us </NavText>
+                      <NavText>Contact us</NavText>
+                  </NavItem >
+                  <NavItem eventKey="submission_form" style={{position: "relative"}} onClick ={() => setMyTitle("Submission Form")}>
+                      <NavIcon><i className="fa fa-pencil" style={{fontSize:"1.5em"}}></i></NavIcon>
+                      <NavText>Submission Form</NavText>
                   </NavItem >
   
                   {/*  keeping the  logout item for reference */}
