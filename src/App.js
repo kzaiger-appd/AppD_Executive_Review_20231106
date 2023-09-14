@@ -1,4 +1,5 @@
 import './App.css';
+import React from 'react'
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import AppDCloud from './pages/appd_cloud';
 import ContactUs from "./pages/contactus";
