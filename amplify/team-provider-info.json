@@ -1,0 +1,26 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-ciscodashboard-dev-160957-authRole",
+      "UnauthRoleArn": "arn:aws:iam::119484918511:role/amplify-ciscodashboard-dev-160957-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::119484918511:role/amplify-ciscodashboard-dev-160957-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-ciscodashboard-dev-160957-deployment",
+      "UnauthRoleName": "amplify-ciscodashboard-dev-160957-unauthRole",
+      "StackName": "amplify-ciscodashboard-dev-160957",
+      "StackId": "arn:aws:cloudformation:us-east-1:119484918511:stack/amplify-ciscodashboard-dev-160957/2d4a3f40-5596-11ee-95b3-0e9ced82b18f",
+      "AmplifyAppId": "dsi1bjjqb9bmg"
+    },
+    "categories": {
+      "api": {
+        "ciscodashboard": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "dsi1bjjqb9bmg",
+          "type": "manual"
+        }
+      }
+    }
+  }
+}
