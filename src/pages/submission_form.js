@@ -180,7 +180,7 @@ function SubmissionForm(){
         </Col>
         <Col>
         <Form.Group className='fw-bold text-muted mt-3 align-items-left'>
-            <Form.Label>R->V Verified</Form.Label>
+            <Form.Label>R-V Verified</Form.Label>
             <FormControl type="text" name="rvVerified"/>
         </Form.Group>
         </Col>
