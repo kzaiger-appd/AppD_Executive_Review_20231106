@@ -8,6 +8,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row' 
 import Col from 'react-bootstrap/Col'
+import { API, graphqlOperation } from 'aws-amplify';
+import { createTodo } from '../graphql/mutations.js'; // Import the GraphQL mutation
 //import {Text} from 'react-bootstrap/Text'
 
 //import FormText from 'react-bootstrap/FormText'
@@ -15,12 +17,18 @@ import Col from 'react-bootstrap/Col'
 function SubmissionForm(){
 
     
-    const submitForm = (e) => {
+    const submitForm = async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target)
         const payload = Object.fromEntries(formData)
 
-        console.log(payload)
+        try {
+            const response = await API.graphql(graphqlOperation(createTodo, { input: payload }));
+            console.log('Data stored in Cosmos DB:', response);
+        } catch (error) {
+            console.error('Error storing data:', error);
+        }
+        
     }
     return (
         
