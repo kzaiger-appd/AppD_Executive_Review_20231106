@@ -5,18 +5,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 import Logo from "./cisco_logo.png";
-import profile from "./profile.png";
 
-// import Avatar from '@mui/material/Avatar';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import Settings from '@mui/icons-material/Settings';
-import Logout from '@mui/icons-material/Logout';
-import { Link } from 'react-router-dom';
 import SideNav, {NavItem,NavIcon,NavText} from "@trendmicro/react-sidenav";
 import "@trendmicro/react-sidenav/dist/react-sidenav.css";
 import {useNavigate} from "react-router-dom";
@@ -24,23 +13,12 @@ import {useNavigate} from "react-router-dom";
 
 
 
-function HeaderSidenav() {
+const HeaderSidenav = ({ sideNavExpanded, setSideNavExpanded }) => {
 
   const navigate = useNavigate();
   const handleSelect = (selected) => {
     navigate(`/${selected}`);
   };
-
-const [anchorEl, setAnchorEl] = React.useState(null);
-const open = Boolean(anchorEl);
-const handleClick = (event) => {
-  setAnchorEl(event.currentTarget);
-};
-
-// close the menu, constant to define that action
-const handleClose = () => {
-  setAnchorEl(null);
-};
 
 /* The profile icon is wrapped in a Tooltip component and an IconButton component. 
 When the user clicks on the profile icon, it opens a Menu component. The user can click on either MenuItem 
@@ -51,93 +29,24 @@ The handleClose function sets the anchorEl variable back to null, which closes t
 
 var current_title="Executive Summary";
 const [myTitle, setMyTitle] = useState(current_title);
-
+var userName="Howard University";
 return (
   <div>
 	<AppBar position="static" className="header">
         
 		<Toolbar>
         <img src={Logo} width="120" alt="logo"/>
-        
         <Typography className="headertext" variant="h6" 
-            component="div" sx={{ flexGrow: 1 }}>
+            component="div" sx={{ flexGrow: 1  }}>
               {myTitle}
         </Typography>
-
-        <Tooltip title="Account settings">
-          <IconButton
-            onClick={handleClick}
-            size="small"
-            sx={{ ml: 2 }}
-            aria-controls={open ? 'account-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-          >
-            <img src={profile} width="40" alt="logo"/>
-          </IconButton>
-        </Tooltip>
-
-        <Menu
-        anchorEl={anchorEl}
-        id="account-menu"
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            mt: 1.5,
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        <MenuItem onClick ={() => setMyTitle("Profile")} component={Link} to="/profile">
-        
-         {/* adds a profile image to the profile option in the menu */}
-          <ListItemIcon>
-            <img src={profile} width = "32" height="32" ml = "-0.5" mr = "1" alt = "logo"/> 
-          </ListItemIcon>
-          Profile 
-        </MenuItem>
-
-        <Divider />   {/* adds a divider between the menu items */}
-
-        <MenuItem component={Link} to="/settings" onClick ={() => setMyTitle("Settings")} >
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem>
-
-        {/* redirects the user to the login page */}
-        <MenuItem component={Link} to="/login" onClick ={() => setMyTitle("Login")}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
-          </ListItemIcon>
-          Logout
-        </MenuItem>
-
-      </Menu>
-
+        {userName}
 		</Toolbar>
 	</AppBar>
 
-  <SideNav onSelect={handleSelect} className="mysidenav" >
+  <SideNav onSelect={handleSelect} className="mysidenav" onToggle={() => {
+          setSideNavExpanded(!sideNavExpanded);
+        }} >
               <SideNav.Toggle />
               <SideNav.Nav defaultSelected="ExeSummary">
                   <NavItem eventKey="executive_summary" onClick ={() => setMyTitle("Executive Summary")}>
@@ -156,25 +65,15 @@ return (
                       <NavIcon><i className="fa fa-fw fa-upload" style={{fontSize:"1.5em"}}></i></NavIcon>
                       <NavText>On-Prem</NavText>
                   </NavItem>
-                  <NavItem eventKey="fso" onClick ={() => setMyTitle("FSO")}>
+                  <NavItem eventKey="fso" onClick ={() => setMyTitle("FSO and CNAO")}>
                       <NavIcon><i className="fa fa-fw fa-desktop" style={{fontSize:"1.5em"}}></i></NavIcon>
-                      <NavText>FSO</NavText>
+                      <NavText>FSO and CNAO</NavText>
                   </NavItem>
-                  <NavItem eventKey="contact_us" style={{position: "relative"}} onClick ={() => setMyTitle("Contact Us")}>
-                      <NavIcon><i className="fa fa-fw fa-phone" style={{fontSize:"1.5em"}}></i></NavIcon>
-                      <NavText>Contact us</NavText>
-                  </NavItem >
                   <NavItem eventKey="submission_form" style={{position: "relative"}} onClick ={() => setMyTitle("Submission Form")}>
                       <NavIcon><i className="fa fa-pencil" style={{fontSize:"1.5em"}}></i></NavIcon>
                       <NavText>Submission Form</NavText>
                   </NavItem >
   
-                  {/*  keeping the  logout item for reference */}
-  
-                  {/* <NavItem eventKey="login" style={{position: "relative"}}>
-                      <NavIcon><i className="fa fa-fw fa-power-off" style={{fontSize:"1.5em"}} ></i></NavIcon>
-                      <NavText>Logout</NavText>
-                  </NavItem> */}
   
               </SideNav.Nav>
               </SideNav>

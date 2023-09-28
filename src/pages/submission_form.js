@@ -1,15 +1,14 @@
 
 import {FormControl} from 'react-bootstrap'
-import React from 'react'
+import React from 'react';
 import "./submission_form.css";
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Container from 'react-bootstrap/Container'
-import Row from 'react-bootstrap/Row' 
-import Col from 'react-bootstrap/Col'
-import { API, graphqlOperation } from 'aws-amplify';
-import { createTodo } from '../graphql/mutations.js'; // Import the GraphQL mutation
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Box from '@mui/material/Box';
 //import {Text} from 'react-bootstrap/Text'
 
 //import FormText from 'react-bootstrap/FormText'
@@ -17,21 +16,15 @@ import { createTodo } from '../graphql/mutations.js'; // Import the GraphQL muta
 function SubmissionForm(){
 
     
-    const submitForm = async (e) => {
+    const submitForm = (e) => {
         e.preventDefault()
         const formData = new FormData(e.target)
         const payload = Object.fromEntries(formData)
 
-        try {
-            const response = await API.graphql(graphqlOperation(createTodo, { input: payload }));
-            console.log('Data stored in Cosmos DB:', response);
-        } catch (error) {
-            console.error('Error storing data:', error);
-        }
-        
+        console.log(payload)
     }
     return (
-        
+        <Box sx={{ marginLeft: 8 }}>
         <Form onSubmit={submitForm}>
         <Container> 
         <h6 class= "mt-3 text-muted d-flex justify-content-end"> *Mandatory Fields </h6>
@@ -200,7 +193,7 @@ function SubmissionForm(){
         </div>
         </Container>
       </Form>
-       
+      </Box>
     )
 }
 
