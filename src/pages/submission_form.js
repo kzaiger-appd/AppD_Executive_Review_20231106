@@ -9,6 +9,8 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Box from '@mui/material/Box';
+import { API, graphqlOperation } from 'aws-amplify';
+import { createTodo } from '../graphql/mutations.js';
 //import {Text} from 'react-bootstrap/Text'
 
 //import FormText from 'react-bootstrap/FormText'
@@ -16,12 +18,18 @@ import Box from '@mui/material/Box';
 function SubmissionForm(){
 
     
-    const submitForm = (e) => {
+    const submitForm = async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target)
         const payload = Object.fromEntries(formData)
 
-        console.log(payload)
+        try {
+            const response = await API.graphql(graphqlOperation(createTodo, { input: payload }));
+            console.log('Data stored in Cosmos DB:', response);
+        } catch (error) {
+            console.error('Error storing data:', error);
+        }
+
     }
     return (
         <Box sx={{ marginLeft: 8 }}>
@@ -42,10 +50,7 @@ function SubmissionForm(){
         </Form.Group>
         </Col>
         </Row>
-        
-        
-        
-        
+    
        <Row>
         <Col>
         <Form.Group className='pb-2 fw-bold text-muted mt-4 mb-3'>
@@ -84,7 +89,7 @@ function SubmissionForm(){
                 <option value="csaas">CSaaS</option>
                 <option value="appd_cloud">Appd Cloud</option>
                 <option value="on-prem">On-Prem</option>
-                <option value="fso">FSO</option>
+                <option value="fso_and_cnao">FSO and CNAO</option>
             </Form.Select>
         </Form.Group>
         </Col>

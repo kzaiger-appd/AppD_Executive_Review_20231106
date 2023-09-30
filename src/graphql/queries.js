@@ -22,12 +22,25 @@ export const listTodos = /* GraphQL */ `
     listTodos(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        name
-        description
-        createdAt
-        updatedAt
-        __typename
-      }
+        projectName
+        projectVersion
+        backlog
+        ccoActual
+        ccoCommit
+        ccoTarget
+        csldUrl
+        icDate
+        platform_type
+        psirtClosed
+        psirtOpened
+        releaseStatus
+        releaseType
+        rvVerified
+        ssAttribute
+        status
+        timsSitUrl
+        tsAttribute
+        }
       nextToken
       __typename
     }
