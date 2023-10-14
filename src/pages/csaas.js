@@ -1,14 +1,18 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
-import { useState, useEffect } from 'react';
-import Typography from "@material-ui/core/Typography";
+// import Box from '@mui/material/Box';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css'; // Import the styles
+import React, { useState, useEffect, useRef } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Typography, Box } from '@mui/material';
 import { API, graphqlOperation } from 'aws-amplify';
+import Container from 'react-bootstrap/Container';
+import Navbar from 'react-bootstrap/Navbar';
+import Button from 'react-bootstrap/Button';
 import { listTodos } from '../graphql/queries'; // Adjust the import path as needed
+import styled from 'styled-components';
+import { updateTodo } from '../graphql/mutations'; // Adjust the import path as needed
 
-const modules = {
+const modules1 = {
     toolbar: [
         [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
         ['bold', 'italic', 'underline'],
@@ -22,72 +26,63 @@ const modules = {
       }
     };
 
-const formats = [
-  'header', 'font', 'list', 'bold', 'italic', 'underline', 'link'
-];
+const EditorContainer = styled.div`
+  .ql-toolbar {
+    display: none;
+  }
 
-const RichTextEditorCell = ({ value, onValueChange }) => (
+  &.focused .ql-toolbar {
+    display: block;
+  }
+`;
+
+function RichTextEditorCell ({ value, onValueChange }) {
+
+  const quillRef = useRef(null);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = (event) => {
+    
+    const ToolbarElement = event.target;
+
+    if (!(ToolbarElement==='ql-header') && !(ToolbarElement==='ql-editor')) {
+      setIsFocused(false);
+    }
+  };
+
+  const handleToolbar = (event) => {
+    const ToolbarElement = event.target.className;
+    if (ToolbarElement==='ql-picker-label') {
+      setIsFocused(true);
+    }
+  };
+
+  return(
+
+  <div onBlur={handleToolbar} style = {{
+    width: 470
+  }}>
+  <EditorContainer className={`rich-text-editor ${isFocused ? 'focused' : ''}`} >
     <ReactQuill
+      ref={quillRef}
       value={value}
       onChange={onValueChange}
-      modules={modules}
-      formats={formats}
+      modules={modules1}
       theme="snow"
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       onKeyDown={(event) => {
         event.stopPropagation();
       }}
     />
+  </EditorContainer>
+  </div>
   );
-
-const columns = [
-    { field: 'projectName', headerName: <Typography>Project Name</Typography>,  width: 400, renderCell: (params) => (
-        <div>
-          <Typography>{params.row.projectName || ''}</Typography>
-          <Typography color="textSecondary">{params.row.releaseContent || ''}</Typography>
-        </div>
-      )},
-    {
-      field: 'status',
-      headerName: <Typography>Status</Typography>,
-      width: 120,
-      editable: true,
-      type: "singleSelect",
-      valueOptions: ["On Track", "Delayed", "Missed"]
-    },
-    {
-      field: 'platform',
-      headerName: <Typography>Platform</Typography>,
-      width: 120,
-      editable: true,
-      type: "singleSelect",
-      valueOptions: ["CSaaS", "Appd Cloud", "On-Prem", "FSO"]
-    },
-    {
-      field: 'cco',
-      headerAlign: 'left',
-      headerName: <Typography>Launch</Typography>,
-      width: 150,
-      renderCell: (params) => (
-        <div>
-          <Typography>Planned <Typography color="textSecondary">{params.row.ccoTarget || ''}</Typography></Typography>
-          <Typography>Actual <Typography color="textSecondary">{params.row.ccoActual || ''}</Typography></Typography>
-        </div>
-      )},
-    {
-      field: 'executiveSummary',
-      headerName: <Typography>Executive Summary</Typography>,
-      sortable: false,
-      width: 370,
-      renderCell: (params) => (
-        <RichTextEditorCell
-          value={params.row.executiveSummary || ''}
-          onValueChange={(content) => {
-            params.row.executiveSummary= content;
-          }}
-        />
-      ),
-    },
-  ];
+}
 
 
 function Csaas(){
@@ -100,6 +95,64 @@ function Csaas(){
 
     // Filter rows with platform 'CSaaS'
     // const filteredRows = rows.filter(row => row.platform === 'CSaaS');
+
+    <div id="dropdownContainer"></div>
+    const [statusCounts, setStatusCounts] = React.useState({
+      'onTrack': 0,
+      delayed: 0,
+      missed: 0,
+    });
+    
+    React.useEffect(() => {
+      setStatusCounts(countStatus(todos));
+    }, [todos]);
+    
+    const countStatus = (todos) => {
+      const counts = {
+        'onTrack': 0,
+        delayed: 0,
+        missed: 0,
+      };
+      for (const row of todos) {
+        counts[row.status] += 1;
+      }
+      return counts;
+    };
+
+    const fetchData = async () => {
+      try {
+        const response = await API.graphql(
+          graphqlOperation(listTodos, {
+            nextToken: nextToken,
+          })
+        );
+  
+        // Check for GraphQL errors in the response
+        if (response.errors) {
+          console.error('GraphQL Errors:', response.errors);
+          // Handle GraphQL errors here, e.g., show an error message to the user
+          return;
+        }
+  
+        const responseData = response.data.listTodos;
+        const todoItems = responseData.items.map((todo) => ({
+          id: todo.id,
+          projectName: todo.projectName,
+          releaseContent: todo.releaseContent,
+          status: todo.status,
+          platform: todo.platform_type,
+          ccoTarget: todo.ccoTarget,
+          ccoActual: todo.ccoActual,
+          backlog: todo.backlog,
+          // Add more fields as needed
+        }));
+        setTodos(todoItems);
+        setNextToken(responseData.nextToken);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle other errors here, e.g., show an error message to the user
+      }
+    };
 
     useEffect(() => {
       async function fetchData() {
@@ -144,9 +197,132 @@ function Csaas(){
       fetchData();
     }, [paginationModel, nextToken]);
 
+    const handleStatusChange = async (rowId, newStatus) => {
+      try {
+        // Call the GraphQL mutation to update the status of the row
+        const response = await API.graphql(
+          graphqlOperation(updateTodo, {
+            input: {
+              id: rowId, // Provide the ID of the row you want to update
+              status: newStatus, // Provide the new status value
+            },
+          })
+        );
     
+        // Check for GraphQL errors in the response
+        if (response.errors) {
+          console.error('GraphQL Errors:', response.errors);
+          // Handle GraphQL errors here, e.g., show an error message to the user
+          return;
+        }
+    
+        // If the update is successful, you can update the local state or perform any other necessary actions
+        // For example, you can update the 'todos' state to reflect the new status.
+    
+        // Reload the data to reflect the updated status
+        fetchData();
+      } catch (error) {
+        console.error('Error updating status:', error);
+        // Handle other errors here, e.g., show an error message to the user
+      }
+    };
+
+    const columns = [
+      { field: 'projectName', headerName: <Typography>Project Name</Typography>,  width: 400, renderCell: (params) => (
+          <div>
+            <Typography>{params.row.projectName || ''}</Typography>
+            <Typography color="textSecondary">{params.row.releaseContent || ''}</Typography>
+          </div>
+        )},
+        {
+          field: 'status',
+          headerName: <Typography>Status</Typography>,
+          width: 120,
+          editable: true,
+          type: "singleSelect",
+          valueOptions: ["onTrack", "delayed", "missed"],
+          renderCell: (params) => (
+            <div
+              style={{
+                background:
+                  params.value === "onTrack" ? 'lightgreen' :
+                  params.value === "delayed" ? 'gold' :
+                  params.value === "missed" ? 'salmon' : 'red',
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }}
+            >
+              <select
+                value={params.value}
+                onChange={(e) => {
+                  handleStatusChange(params.row.id, e.target.value);
+                }}
+                style={{
+                  backgroundColor:
+                    params.value === "onTrack"
+                      ? "lightgreen"
+                      : params.value === "delayed"
+                      ? "gold"
+                      : params.value === "missed"
+                      ? "salmon"
+                      : "red",
+                  color: "black", // You can adjust the text color of the selected option
+                }}
+              >
+                <option value="onTrack" > On Track</option>
+                <option value="delayed">Delayed</option>
+                <option value="missed">Missed</option>
+              </select>
+            </div>
+          ),
+        },
+      {
+        field: 'platform',
+        headerName: <Typography>Platform</Typography>,
+        width: 120,
+        editable: true,
+        type: "singleSelect",
+        valueOptions: ["CSaaS", "Appd Cloud", "On-Prem", "FSO"]
+      },
+      {
+        field: 'cco',
+        headerAlign: 'left',
+        headerName: <Typography>Launch</Typography>,
+        width: 150,
+        renderCell: (params) => (
+          <div>
+            <Typography>Planned <Typography color="textSecondary">{params.row.ccoTarget || ''}</Typography></Typography>
+            <Typography>Actual <Typography color="textSecondary">{params.row.ccoActual || ''}</Typography></Typography>
+          </div>
+        )},
+      {
+        field: 'executiveSummary',
+        headerName: <Typography>Executive Summary</Typography>,
+        sortable: false,
+        editable: true,
+        width: 370,
+        renderCell: (params) => (
+          <RichTextEditorCell
+            value={params.row.executiveSummary || ''}
+            onValueChange={(content) => {
+              params.row.executiveSummary= content;
+            }}
+          />
+        ),
+      },
+    ];
       
     return (
+        <>
+        <Navbar expand="lg" className="bg-body-tertiary">
+          <Container >
+          <Button variant="success" style={{color:'black', background: 'lightgreen' }}>On Track: {statusCounts['onTrack']}</Button>
+          <Button variant="warning" style={{ background: 'gold' }}>Delayed: {statusCounts.delayed}</Button>
+          <Button variant="danger" style={{ color: 'black', background:'salmon' }}>Missed: {statusCounts.missed}</Button>
+    
+            <Navbar.Brand href="#"></Navbar.Brand>
+          </Container>
+        </Navbar> 
         <Box sx={{ height: '100%', width: '96%', marginLeft: 8 }}>
           <DataGrid
             paginationModel={paginationModel}
@@ -155,10 +331,11 @@ function Csaas(){
             getRowHeight={() => 'auto'}
             columns={columns}
             pageSizeOptions={[5]}
-            checkboxSelection
+            // checkboxSelection
             disableRowSelectionOnClick
           />
         </Box>
+        </>
       );
 }
 

@@ -153,7 +153,7 @@ function Fso(){
             getRowHeight={() => 'auto'}
             columns={columns}
             pageSizeOptions={[5]}
-            checkboxSelection
+            // checkboxSelection
             disableRowSelectionOnClick
           />
         </Box>

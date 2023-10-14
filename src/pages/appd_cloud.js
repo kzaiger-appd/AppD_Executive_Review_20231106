@@ -155,7 +155,7 @@ function Appd_cloud(){
             getRowHeight={() => 'auto'}
             columns={columns}
             pageSizeOptions={[5]}
-            checkboxSelection
+            // checkboxSelection
             disableRowSelectionOnClick
           />
         </Box>

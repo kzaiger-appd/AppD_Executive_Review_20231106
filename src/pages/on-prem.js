@@ -151,7 +151,7 @@ function On_prem(){
             getRowHeight={() => 'auto'}
             columns={columns}
             pageSizeOptions={[5]}
-            checkboxSelection
+            // checkboxSelection
             disableRowSelectionOnClick
           />
         </Box>

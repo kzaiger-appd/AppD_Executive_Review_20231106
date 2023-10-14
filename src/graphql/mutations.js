@@ -36,11 +36,24 @@ export const updateTodo = /* GraphQL */ `
   ) {
     updateTodo(input: $input, condition: $condition) {
       id
-      name
-      description
-      createdAt
-      updatedAt
-      __typename
+      projectName
+      projectVersion
+      backlog
+      ccoActual
+      ccoCommit
+      ccoTarget
+      csldUrl
+      icDate
+      platform_type
+      psirtClosed
+      psirtOpened
+      releaseStatus
+      releaseType
+      rvVerified
+      ssAttribute
+      status
+      timsSitUrl
+      tsAttribute
     }
   }
 `;
