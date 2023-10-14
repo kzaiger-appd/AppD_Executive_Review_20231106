@@ -36,6 +36,20 @@ const modules1 = {
 //   }
 // `;
 
+const MyComponent = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const DataGridContainer = styled.div`
+  flex: 1; /* Allow the DataGrid to expand and fill the available space */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Ensure the container doesn't overflow */
+`;
+
 const EditorContainer = styled.div`
   .ql-toolbar {
     display: none;
@@ -257,7 +271,7 @@ function ExecutiveSummary() {
   }, [paginationModel, nextToken]);
 
   const columns = [
-    { field: 'projectName', headerName: <Typography>Project Name</Typography>,  width: 400, renderCell: (params) => (
+    { field: 'projectName', headerName: <Typography>Project Name</Typography>,  width: 20, flex: 1, renderCell: (params) => (
       <div>
         <Typography>{params.row.projectName || ''}</Typography>
         <Typography color="textSecondary">{params.row.releaseContent || ''}</Typography>
@@ -266,8 +280,9 @@ function ExecutiveSummary() {
     {
       field: 'status',
       headerName: <Typography>Status</Typography>,
-      width: 120,
-      editable: true,
+      width: 10,
+      flex: 1,
+      editable: false,
       type: "singleSelect",
       valueOptions: ["onTrack", "delayed", "missed"],
       renderCell: (params) => (
@@ -310,7 +325,8 @@ function ExecutiveSummary() {
   {
     field: 'platform',
     headerName: <Typography>Platform</Typography>,
-    width: 120,
+    width: 10,
+    flex: 1,
     editable: true,
     type: "singleSelect",
     valueOptions: ["CSaaS", "Appd Cloud", "On-Prem", "FSO and CNAO"],
@@ -324,7 +340,8 @@ function ExecutiveSummary() {
     field: 'cco',
     headerAlign: 'left',
     headerName: <Typography>Launch</Typography>,
-    width: 150,
+    width: 15,
+    flex: 1,
     renderCell: (params) => (
       <div>
         <Typography>Planned <Typography color="textSecondary">{params.row.ccoTarget || ''}</Typography></Typography>
@@ -336,7 +353,8 @@ function ExecutiveSummary() {
     headerName: <Typography>Executive Summary</Typography>,
     sortable: false,
     editable: true,
-    width: 370,
+    width: 15,
+    flex: 1,
     renderCell: (params) => (
       <RichTextEditorCell
         value={params.row.backlog || ''}
@@ -349,7 +367,7 @@ function ExecutiveSummary() {
   ];
 
   return (
-    <>
+    <MyComponent className={`my-component`}>
     <Navbar expand="lg" className="bg-body-tertiary">
       <Container >
       <Button variant="success" style={{color:'black', background: 'lightgreen' }}>On Track: {statusCounts['onTrack']}</Button>
@@ -359,19 +377,23 @@ function ExecutiveSummary() {
         <Navbar.Brand href="#"></Navbar.Brand>
       </Container>
     </Navbar> 
-    <Box sx={{ height: '100%', width: '96%', marginLeft: 8 }}>
-      <DataGrid
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        rows={todos}
-        getRowHeight={() => 'auto'}
-        columns={columns}
-        pageSizeOptions={[5]}
-        // checkboxSelection
-        disableRowSelectionOnClick
-      />
-    </Box>
-    </>
+    <DataGridContainer>
+      <Box sx={{ height: '200%', width: '95.5%', marginLeft: 8}}>
+        <DataGrid
+          autoHeight
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rows={todos}
+          getRowHeight={() => 'auto'}
+          columns={columns}
+          pageSizeOptions={[5]}
+          flex={1}
+          // checkboxSelection
+          disableRowSelectionOnClick
+        />
+      </Box>
+    </DataGridContainer>
+    </MyComponent>
   );
 }
 
