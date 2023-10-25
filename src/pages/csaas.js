@@ -10,7 +10,6 @@ import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import { listTodos } from '../graphql/queries'; // Adjust the import path as needed
 import styled from 'styled-components';
-import { updateTodo } from '../graphql/mutations'; // Adjust the import path as needed
 
 const modules1 = {
     toolbar: [
@@ -34,10 +33,14 @@ const EditorContainer = styled.div`
   &.focused .ql-toolbar {
     display: block;
   }
+  .ql-container {
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 0px;
+  }
 `;
 
-function RichTextEditorCell ({ value, onValueChange }) {
-
+function RichTextEditorCell({ value, onValueChange }) {
   const quillRef = useRef(null);
   const [isFocused, setIsFocused] = useState(false);
 
@@ -45,13 +48,8 @@ function RichTextEditorCell ({ value, onValueChange }) {
     setIsFocused(true);
   };
 
-  const handleBlur = (event) => {
-    
-    const ToolbarElement = event.target;
-
-    if (!(ToolbarElement==='ql-header') && !(ToolbarElement==='ql-editor')) {
-      setIsFocused(false);
-    }
+  const handleBlur = () => {
+    setIsFocused(false);
   };
 
   const handleToolbar = (event) => {
@@ -61,33 +59,64 @@ function RichTextEditorCell ({ value, onValueChange }) {
     }
   };
 
-  return(
-
-  <div onBlur={handleToolbar} style = {{
-    width: 470
-  }}>
-  <EditorContainer className={`rich-text-editor ${isFocused ? 'focused' : ''}`} >
-    <ReactQuill
-      ref={quillRef}
-      value={value}
-      onChange={onValueChange}
-      modules={modules1}
-      theme="snow"
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onKeyDown={(event) => {
-        event.stopPropagation();
-      }}
-    />
-  </EditorContainer>
-  </div>
+  return (
+    <div onBlur={handleToolbar} style = {{
+      width: 470
+    }}>
+    <EditorContainer className={`rich-text-editor ${isFocused ? 'focused' : ''}`}>
+      <ReactQuill
+        ref={quillRef}
+        value={value}
+        onChange={onValueChange}
+        modules={modules1}
+        theme="snow"
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onKeyDown={(event) => {
+          event.stopPropagation();
+        }}
+      />
+    </EditorContainer>
+    </div>
   );
 }
 
+function formatPlatform(platform) {
+  switch (platform) {
+    case "on-prem":
+      return "On Prem";
+    case "fso_and_cnao":
+      return "Fso and Cnao";
+    case "appd_cloud":
+      return "Appd Cloud";
+    case "csaas":
+      return "Csaas";
+    default:
+      return platform; // Return the original value if not found in the mapping
+  }
+}
+
+function formatStatus(status) {
+  switch (status) {
+    case "missed":
+      return "Missed";
+    case "onTrack":
+      return "On Track";
+    case "delayed":
+      return "Delayed";
+    default:
+      return status; // Return the original value if not found in the mapping
+  }
+}
 
 function Csaas(){
     const [todos, setTodos] = useState([]);
     const [nextToken, setNextToken] = useState(null);
+    const [filteredTodos, setFilteredTodos] = useState([]);
+    const [onTrackCheck, setOnTrackCheck]=useState(true);
+    const [delayedCheck, setDelayedCheck]=useState(true);
+    const [missedCheck, setMissedCheck]=useState(true);
+
     const [paginationModel, setPaginationModel] = React.useState({
         pageSize: 5,
         page: 0,
@@ -96,7 +125,6 @@ function Csaas(){
     // Filter rows with platform 'CSaaS'
     // const filteredRows = rows.filter(row => row.platform === 'CSaaS');
 
-    <div id="dropdownContainer"></div>
     const [statusCounts, setStatusCounts] = React.useState({
       'onTrack': 0,
       delayed: 0,
@@ -119,39 +147,18 @@ function Csaas(){
       return counts;
     };
 
-    const fetchData = async () => {
-      try {
-        const response = await API.graphql(
-          graphqlOperation(listTodos, {
-            nextToken: nextToken,
-          })
-        );
-  
-        // Check for GraphQL errors in the response
-        if (response.errors) {
-          console.error('GraphQL Errors:', response.errors);
-          // Handle GraphQL errors here, e.g., show an error message to the user
-          return;
+    const filterTodos = () => {
+      let filtered = todos.filter((todo) => {
+        if (
+          (onTrackCheck && todo.status === 'onTrack') ||
+          (delayedCheck && todo.status === 'delayed') ||
+          (missedCheck && todo.status === 'missed')
+        ) {
+          return true;
         }
-  
-        const responseData = response.data.listTodos;
-        const todoItems = responseData.items.map((todo) => ({
-          id: todo.id,
-          projectName: todo.projectName,
-          releaseContent: todo.releaseContent,
-          status: todo.status,
-          platform: todo.platform_type,
-          ccoTarget: todo.ccoTarget,
-          ccoActual: todo.ccoActual,
-          backlog: todo.backlog,
-          // Add more fields as needed
-        }));
-        setTodos(todoItems);
-        setNextToken(responseData.nextToken);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        // Handle other errors here, e.g., show an error message to the user
-      }
+        return false;
+      });
+      setFilteredTodos(filtered);
     };
 
     useEffect(() => {
@@ -187,6 +194,7 @@ function Csaas(){
           }));
           setTodos(todoItems);
           setNextToken(responseData.nextToken); // Update the nextToken
+          filterTodos();
   
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -195,40 +203,31 @@ function Csaas(){
       }
   
       fetchData();
-    }, [paginationModel, nextToken]);
+    }, [nextToken]);
 
-    const handleStatusChange = async (rowId, newStatus) => {
-      try {
-        // Call the GraphQL mutation to update the status of the row
-        const response = await API.graphql(
-          graphqlOperation(updateTodo, {
-            input: {
-              id: rowId, // Provide the ID of the row you want to update
-              status: newStatus, // Provide the new status value
-            },
-          })
-        );
+    useEffect(() => {
+      filterTodos(); // Call filterTodos to update the filtered data
+    }, [onTrackCheck, delayedCheck, missedCheck, todos]);
+  
+  
+    const handleOnTrackChange = () => {
+      setOnTrackCheck(!onTrackCheck);
+      filterTodos(); // Call filterTodos to update the filtered data
+    };
     
-        // Check for GraphQL errors in the response
-        if (response.errors) {
-          console.error('GraphQL Errors:', response.errors);
-          // Handle GraphQL errors here, e.g., show an error message to the user
-          return;
-        }
+    const handleDelayedChange = () => {
+      setDelayedCheck(!delayedCheck);
+      filterTodos(); // Call filterTodos to update the filtered data
+    };
     
-        // If the update is successful, you can update the local state or perform any other necessary actions
-        // For example, you can update the 'todos' state to reflect the new status.
-    
-        // Reload the data to reflect the updated status
-        fetchData();
-      } catch (error) {
-        console.error('Error updating status:', error);
-        // Handle other errors here, e.g., show an error message to the user
-      }
+    const handleMissedChange = () => {
+      setMissedCheck(!missedCheck);
+      filterTodos(); // Call filterTodos to update the filtered data
     };
 
     const columns = [
-      { field: 'projectName', headerName: <Typography>Project Name</Typography>,  width: 400, renderCell: (params) => (
+      { 
+        field: 'projectName', headerName: <Typography>Project Name</Typography>,  width: 20, flex: 1, renderCell: (params) => (
           <div>
             <Typography>{params.row.projectName || ''}</Typography>
             <Typography color="textSecondary">{params.row.releaseContent || ''}</Typography>
@@ -237,10 +236,10 @@ function Csaas(){
         {
           field: 'status',
           headerName: <Typography>Status</Typography>,
-          width: 120,
-          editable: true,
+          width: 10,
+          flex: 1,
+          editable: false,
           type: "singleSelect",
-          valueOptions: ["onTrack", "delayed", "missed"],
           renderCell: (params) => (
             <div
               style={{
@@ -249,46 +248,31 @@ function Csaas(){
                   params.value === "delayed" ? 'gold' :
                   params.value === "missed" ? 'salmon' : 'red',
                 borderRadius: '5px',
-                cursor: 'pointer'
               }}
             >
-              <select
-                value={params.value}
-                onChange={(e) => {
-                  handleStatusChange(params.row.id, e.target.value);
-                }}
-                style={{
-                  backgroundColor:
-                    params.value === "onTrack"
-                      ? "lightgreen"
-                      : params.value === "delayed"
-                      ? "gold"
-                      : params.value === "missed"
-                      ? "salmon"
-                      : "red",
-                  color: "black", // You can adjust the text color of the selected option
-                }}
-              >
-                <option value="onTrack" > On Track</option>
-                <option value="delayed">Delayed</option>
-                <option value="missed">Missed</option>
-              </select>
+              {formatStatus(params.row.status)}
             </div>
           ),
         },
       {
         field: 'platform',
         headerName: <Typography>Platform</Typography>,
-        width: 120,
+        width: 10,
+        flex: 1,
         editable: true,
         type: "singleSelect",
-        valueOptions: ["CSaaS", "Appd Cloud", "On-Prem", "FSO"]
+        renderCell: (params) => (
+          <div>
+            {formatPlatform(params.value)}
+          </div>
+        ),
       },
       {
         field: 'cco',
         headerAlign: 'left',
         headerName: <Typography>Launch</Typography>,
-        width: 150,
+        width: 15,
+        flex: 1,
         renderCell: (params) => (
           <div>
             <Typography>Planned <Typography color="textSecondary">{params.row.ccoTarget || ''}</Typography></Typography>
@@ -300,10 +284,11 @@ function Csaas(){
         headerName: <Typography>Executive Summary</Typography>,
         sortable: false,
         editable: true,
-        width: 370,
+        width: 15,
+        flex: 1,
         renderCell: (params) => (
           <RichTextEditorCell
-            value={params.row.executiveSummary || ''}
+            value={params.row.backlog || ''}
             onValueChange={(content) => {
               params.row.executiveSummary= content;
             }}
@@ -313,21 +298,40 @@ function Csaas(){
     ];
       
     return (
-        <>
-        <Navbar expand="lg" className="bg-body-tertiary">
-          <Container >
-          <Button variant="success" style={{color:'black', background: 'lightgreen' }}>On Track: {statusCounts['onTrack']}</Button>
-          <Button variant="warning" style={{ background: 'gold' }}>Delayed: {statusCounts.delayed}</Button>
-          <Button variant="danger" style={{ color: 'black', background:'salmon' }}>Missed: {statusCounts.missed}</Button>
-    
-            <Navbar.Brand href="#"></Navbar.Brand>
-          </Container>
-        </Navbar> 
+      <>
+      <Box    display="flex"
+              justifyContent="center"
+              alignItems="center"
+              >
+      <Navbar expand="lg" className="bg-body-tertiary">
+      <Container style={{ background: 'transparent' }}>
+        <input
+        type="checkbox"
+        checked={onTrackCheck}
+        onChange={handleOnTrackChange}
+      />
+        <Button onClick={() => handleOnTrackChange()} variant="success" style={{color:'black', background: 'lightgreen', marginRight: '250px' }}>On Track: {statusCounts['onTrack']}</Button>
+        <input
+        type="checkbox"
+        checked={delayedCheck}
+        onChange={handleDelayedChange}
+      />
+        <Button onClick={() => handleDelayedChange()} variant="warning" style={{ background: 'gold' ,  marginRight: '250px'}}>Delayed: {statusCounts.delayed}</Button>
+        <input
+        type="checkbox"
+        checked={missedCheck}
+        onChange={handleMissedChange}
+      />
+        <Button onClick={() => handleMissedChange()} variant="danger" style={{ color: 'black', background:'salmon' }}>Missed: {statusCounts.missed}</Button>
+          <Navbar.Brand href="#"></Navbar.Brand>
+        </Container>
+      </Navbar>  
+      </Box>
         <Box sx={{ height: '100%', width: '96%', marginLeft: 8 }}>
           <DataGrid
             paginationModel={paginationModel}
             onPaginationModelChange={setPaginationModel}
-            rows={todos}
+            rows={filteredTodos}
             getRowHeight={() => 'auto'}
             columns={columns}
             pageSizeOptions={[5]}
