@@ -10,7 +10,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import { listTodos } from '../graphql/queries'; // Adjust the import path as needed
 import styled from 'styled-components';
-import { updateTodo } from '../graphql/mutations'; // Adjust the import path as needed
+// import { updateTodo } from '../graphql/mutations'; // Adjust the import path as needed
 
 const modules1 = {
   toolbar: [
@@ -26,30 +26,6 @@ const modules1 = {
   }
 };
 
-// const EditorContainer = styled.div`
-//   .ql-toolbar {
-//     display: none;
-//   }
-
-//   &.focused .ql-toolbar {
-//     display: block;
-//   }
-// `;
-
-const MyComponent = styled.div`
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-`;
-
-const DataGridContainer = styled.div`
-  flex: 1; /* Allow the DataGrid to expand and fill the available space */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Ensure the container doesn't overflow */
-`;
-
 const EditorContainer = styled.div`
   .ql-toolbar {
     display: none;
@@ -57,12 +33,11 @@ const EditorContainer = styled.div`
 
   &.focused .ql-toolbar {
     display: block;
-    /* You can add additional styles here to adjust the toolbar appearance when focused. */
   }
-  
-  .ql-editor {
-    border-top: 2px solid #ccc; /* Add a border to the top of the editor to make it visible. */
-    padding-top: 5px; /* Adjust the padding as needed. */
+  .ql-container {
+    border-left: 0px;
+    border-right: 0px;
+    border-bottom: 0px;
   }
 `;
 
@@ -124,14 +99,32 @@ function formatPlatform(platform) {
   }
 }
 
+function formatStatus(status) {
+  switch (status) {
+    case "missed":
+      return "Missed";
+    case "onTrack":
+      return "On Track";
+    case "delayed":
+      return "Delayed";
+    default:
+      return status; // Return the original value if not found in the mapping
+  }
+}
+
 function ExecutiveSummary() {
   const [todos, setTodos] = useState([]);
   const [nextToken, setNextToken] = useState(null);
+  const [filteredTodos, setFilteredTodos] = useState([]);
+  const [onTrackCheck, setOnTrackCheck]=useState(true);
+  const [delayedCheck, setDelayedCheck]=useState(true);
+  const [missedCheck, setMissedCheck]=useState(true);
+
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 5,
     page: 0,
   });
-  <div id="dropdownContainer"></div>
+  
   const [statusCounts, setStatusCounts] = React.useState({
     'onTrack': 0,
     delayed: 0,
@@ -154,83 +147,22 @@ function ExecutiveSummary() {
     return counts;
   };
 
-  const fetchData = async () => {
-    try {
-      const response = await API.graphql(
-        graphqlOperation(listTodos, {
-          nextToken: nextToken,
-        })
-      );
-
-      // Check for GraphQL errors in the response
-      if (response.errors) {
-        console.error('GraphQL Errors:', response.errors);
-        // Handle GraphQL errors here, e.g., show an error message to the user
-        return;
+  const filterTodos = () => {
+    let filtered = todos.filter((todo) => {
+      if (
+        (onTrackCheck && todo.status === 'onTrack') ||
+        (delayedCheck && todo.status === 'delayed') ||
+        (missedCheck && todo.status === 'missed')
+      ) {
+        return true;
       }
-
-      const responseData = response.data.listTodos;
-      const todoItems = responseData.items.map((todo) => ({
-        id: todo.id,
-        projectName: todo.projectName,
-        releaseContent: todo.releaseContent,
-        status: todo.status,
-        platform: todo.platform_type,
-        ccoTarget: todo.ccoTarget,
-        ccoActual: todo.ccoActual,
-        backlog: todo.backlog,
-        // Add more fields as needed
-      }));
-      setTodos(todoItems);
-      setNextToken(responseData.nextToken);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      // Handle other errors here, e.g., show an error message to the user
-    }
+      return false;
+    });
+    setFilteredTodos(filtered);
   };
-
-
-  const handleStatusChange = async (rowId, newStatus) => {
-    try {
-      // Call the GraphQL mutation to update the status of the row
-      const response = await API.graphql(
-        graphqlOperation(updateTodo, {
-          input: {
-            id: rowId, // Provide the ID of the row you want to update
-            status: newStatus, // Provide the new status value
-          },
-        })
-      );
-
-      // Check for GraphQL errors in the response
-      if (response.errors) {
-        console.error('GraphQL Errors:', response.errors);
-        // Handle GraphQL errors here
-        return;
-      }
-
-      // Reload the data to reflect the updated status
-      fetchData();
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  };
-
-
-  const updateButtonCounts = () => {
-    const buttons = document.querySelectorAll('.btn-status');
-    for (const button of buttons) {
-      const status = button.classList[button.classList.length - 1];
-      button.textContent = `${status}: ${statusCounts[status]}`;
-    }
-  };
-
-  React.useEffect(() => {
-    updateButtonCounts();
-  }, [statusCounts]);
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () =>  {
       try {
         const response = await API.graphql(
           graphqlOperation(listTodos, {
@@ -259,7 +191,9 @@ function ExecutiveSummary() {
           // Add more fields as needed
         }));
         setTodos(todoItems);
+        // setFilteredTodos(todoItems);
         setNextToken(responseData.nextToken); // Update the nextToken
+        filterTodos(); // Call filterTodos to update the filtered data
 
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -268,7 +202,30 @@ function ExecutiveSummary() {
     }
 
     fetchData();
-  }, [paginationModel, nextToken]);
+  }, [nextToken]);
+
+  // [paginationModel, nextToken]
+
+  useEffect(() => {
+    filterTodos(); // Call filterTodos to update the filtered data
+  }, [onTrackCheck, delayedCheck, missedCheck, todos]);
+
+
+  const handleOnTrackChange = () => {
+    setOnTrackCheck(!onTrackCheck);
+    filterTodos(); // Call filterTodos to update the filtered data
+  };
+  
+  const handleDelayedChange = () => {
+    setDelayedCheck(!delayedCheck);
+    filterTodos(); // Call filterTodos to update the filtered data
+  };
+  
+  const handleMissedChange = () => {
+    setMissedCheck(!missedCheck);
+    filterTodos(); // Call filterTodos to update the filtered data
+  };
+  
 
   const columns = [
     { field: 'projectName', headerName: <Typography>Project Name</Typography>,  width: 20, flex: 1, renderCell: (params) => (
@@ -284,7 +241,6 @@ function ExecutiveSummary() {
       flex: 1,
       editable: false,
       type: "singleSelect",
-      valueOptions: ["onTrack", "delayed", "missed"],
       renderCell: (params) => (
         <div
           style={{
@@ -293,32 +249,9 @@ function ExecutiveSummary() {
               params.value === "delayed" ? 'gold' :
               params.value === "missed" ? 'salmon' : 'red',
             borderRadius: '5px',
-            cursor: 'pointer',
-            // borderRadius: "5px"
           }}
         >
-          <select
-            value={params.value}
-            onChange={(e) => {
-              handleStatusChange(params.row.id, e.target.value);
-            }}
-            style={{
-              backgroundColor:
-                params.value === "onTrack"
-                  ? "lightgreen"
-                  : params.value === "delayed"
-                  ? "gold"
-                  : params.value === "missed"
-                  ? "salmon"
-                  : "red",
-              color: "black", // You can adjust the text color of the selected option
-              borderRadius: "5px",
-            }}
-          >
-            <option value="onTrack" > On Track</option>
-            <option value="delayed">Delayed</option>
-            <option value="missed">Missed</option>
-          </select>
+          {formatStatus(params.row.status)}
         </div>
       ),
     },
@@ -329,7 +262,6 @@ function ExecutiveSummary() {
     flex: 1,
     editable: true,
     type: "singleSelect",
-    valueOptions: ["CSaaS", "Appd Cloud", "On-Prem", "FSO and CNAO"],
     renderCell: (params) => (
       <div>
         {formatPlatform(params.value)}
@@ -367,33 +299,47 @@ function ExecutiveSummary() {
   ];
 
   return (
-    <MyComponent className={`my-component`}>
+    <>
+    <Box    display="flex"
+            justifyContent="center"
+            alignItems="center"
+            >
     <Navbar expand="lg" className="bg-body-tertiary">
-      <Container >
-      <Button variant="success" style={{color:'black', background: 'lightgreen' }}>On Track: {statusCounts['onTrack']}</Button>
-      <Button variant="warning" style={{ background: 'gold' }}>Delayed: {statusCounts.delayed}</Button>
-      <Button variant="danger" style={{ color: 'black', background:'salmon' }}>Missed: {statusCounts.missed}</Button>
-
+    <Container style={{ background: 'transparent' }}>
+      <input
+      type="checkbox"
+      checked={onTrackCheck}
+      onChange={handleOnTrackChange}
+    />
+      <Button onClick={() => handleOnTrackChange()} variant="success" style={{color:'black', background: 'lightgreen', marginRight: '250px' }}>On Track: {statusCounts['onTrack']}</Button>
+      <input
+      type="checkbox"
+      checked={delayedCheck}
+      onChange={handleDelayedChange}
+    />
+      <Button onClick={() => handleDelayedChange()} variant="warning" style={{ background: 'gold' ,  marginRight: '250px'}}>Delayed: {statusCounts.delayed}</Button>
+      <input
+      type="checkbox"
+      checked={missedCheck}
+      onChange={handleMissedChange}
+    />
+      <Button onClick={() => handleMissedChange()} variant="danger" style={{ color: 'black', background:'salmon' }}>Missed: {statusCounts.missed}</Button>
         <Navbar.Brand href="#"></Navbar.Brand>
       </Container>
-    </Navbar> 
-    <DataGridContainer>
-      <Box sx={{ height: '200%', width: '95.5%', marginLeft: 8}}>
+    </Navbar>  
+    </Box>
+      <Box sx={{ height: '100%', width: '96%', marginLeft: 8 }}>
         <DataGrid
-          autoHeight
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
-          rows={todos}
+          rows={filteredTodos}
           getRowHeight={() => 'auto'}
           columns={columns}
           pageSizeOptions={[5]}
-          flex={1}
-          // checkboxSelection
           disableRowSelectionOnClick
         />
       </Box>
-    </DataGridContainer>
-    </MyComponent>
+    </>
   );
 }
 

@@ -32,7 +32,7 @@ const [myTitle, setMyTitle] = useState(current_title);
 var userName="Howard University";
 return (
   <div>
-	<AppBar position="static" className="header">
+	<AppBar position="fixed" className="header"elevation={0}>
         
 		<Toolbar>
         <img src={Logo} width="120" alt="logo"/>
@@ -43,12 +43,13 @@ return (
         {userName}
 		</Toolbar>
 	</AppBar>
+  <Toolbar />
 
   <SideNav onSelect={handleSelect} className="mysidenav" onToggle={() => {
           setSideNavExpanded(!sideNavExpanded);
-        }} >
+        }} style={{position:'fixed'}}>
               <SideNav.Toggle />
-              <SideNav.Nav defaultSelected="ExeSummary">
+              <SideNav.Nav defaultSelected="executive_summary">
                   <NavItem eventKey="executive_summary" onClick ={() => setMyTitle("Executive Summary")}>
                       <NavIcon><i className="fa fa-fw fa-house" style={{fontSize:"1.5em"}} ></i></NavIcon>
                       <NavText>Executive Summary</NavText>
