@@ -1,19 +1,50 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@600;600;700&display=swap");
 /*@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap");*/
 
-.submitForm {
-    height: 1854px;
-    width: 1040px;
-  }
-  
-  .submitForm {
-    background-color: #ffffff;
-    /*height: 1854px;*/
-    left: 0;
-    position: fixed;
-    top: 0;
-    /*width: 1040px;*/
-  }
-  
-  
+/* submission_form.css
 
+/* Reduce padding and margins for form elements */
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-label {
+  font-size: 12px; /* Decrease font size */
+  margin-bottom: 2px;
+}
+
+.form-control,
+.form-select,
+.form-control-textarea {
+  padding: 4px;
+  font-size: 12px; /* Decrease font size */
+}
+
+/* Smaller input elements */
+.form-control-sm,
+.form-select-sm,
+.form-control-textarea-sm {
+  padding: 3px;
+  font-size: 11px; /* Decrease font size */
+}
+
+/* Adjust container width */
+.container {
+  max-width: 860px;
+}
+
+/* Reduce textarea rows */
+.form-control-textarea-sm {
+  padding: 4px;
+  font-size: 12px;
+  resize: none;
+}
+
+/* In your CSS or stylesheet file */
+.mt-4 {
+  margin-top: 1rem !important; /* Adjust the margin as needed */
+}
+
+.reduce-top-padding {
+  padding-top: 0.5rem !important; /* Adjust the padding as needed */
+}
