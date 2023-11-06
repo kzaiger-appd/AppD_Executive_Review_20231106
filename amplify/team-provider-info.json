@@ -14,13 +14,8 @@
     "categories": {
       "api": {
         "ciscodashboard": {}
-      },
-      "hosting": {
-        "amplifyhosting": {
-          "appId": "dsi1bjjqb9bmg",
-          "type": "manual"
-        }
       }
+
     }
   }
 }
